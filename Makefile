@@ -4,9 +4,11 @@ init:
 .PHONY: init
 
 dev-node/start:
-	docker compose up -d
+	cd vendor/localsecret && \
+		docker compose up -d
 .PHONY: dev-node/start
 
 dev-node/stop:
-	docker compose down
+	cd vendor/localsecret && \
+		docker compose down
 .PHONY: dev-node/stop
