@@ -63,11 +63,12 @@ describe("basic setup", () => {
     });
 
     const transferAmount = 789_321;
+    const amount = transferAmount.toString();
 
     const transfer = await client.tx.bank.send({
       fromAddress: bob.address,
       toAddress: alice.address,
-      amount: [{ amount: transferAmount.toString(), denom: "uscrt" }],
+      amount: [{ amount, denom: "uscrt" }],
     });
 
     expect(transfer.code).toEqual(0);
@@ -77,8 +78,13 @@ describe("basic setup", () => {
       denom: "uscrt",
     });
 
-    expect(parseInt(balance_response_pre?.balance?.amount!, 10)).toBe(
-      parseInt(balance_response_post?.balance?.amount!, 10) - transferAmount
+    const state = {
+      balance_response_pre: BigInt(balance_response_pre?.balance?.amount!),
+      balance_response_post: BigInt(balance_response_post?.balance?.amount!),
+    }
+
+    expect(state.balance_response_pre + BigInt(amount)).toBe(
+      state.balance_response_post
     );
   });
 });
