@@ -4,8 +4,7 @@ tasks:
     command: |
       make dev-node/start
   - init: |
-      yarn --cwd interface
-      yarn --cwd interface start
+      yarn --cwd interface && yarn start
 
 vscode:
   extensions:
