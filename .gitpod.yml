@@ -3,3 +3,12 @@ tasks:
       make init
     command: |
       make dev-node/start
+  - init: |
+      yarn --cwd interface
+      yarn --cwd interface start
+
+vscode:
+  extensions:
+    - matklad.rust-analyzer
+    - esbenp.prettier-vscode
+    - bungcip.better-toml
