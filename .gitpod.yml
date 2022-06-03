@@ -6,6 +6,10 @@ tasks:
   - init: |
       yarn --cwd interface && yarn start
 
+ports:
+  - port: 9091
+    visibility: public
+
 vscode:
   extensions:
     - matklad.rust-analyzer
