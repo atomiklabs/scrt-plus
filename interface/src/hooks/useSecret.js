@@ -1,6 +1,12 @@
 import { useEffect, useState, createContext, useContext } from 'react'
 import { SecretNetworkClient } from 'secretjs'
 
+// TODO FIX OPEN OSX ERROR: localhost:9091, 1337, 26657 -> Connection Refused
+// Command:   nc -vz localhost 9091
+// Result:    nc: connectx to localhost port 9091 (tcp) failed: Connection refused
+// WORKAROUND: GITPOD_WORKSPACE_URL -> https://www.gitpod.io/docs/environment-variables/
+const TEMP_GITPOD_WORKSPACE_URL = "atomiklabs-scrtnetworkd-opkb4uszz6x.ws-us46.gitpod.io"
+
 const SecretJSContext = createContext({
   secretjs: null,
 })
@@ -18,8 +24,7 @@ export const SecretContext = ({ children }) => {
     // https://github.com/scrtlabs/secret.js#keplr-wallet
     const setupSecretJS = async () => {
       await addCustomChainToKepler()
-
-      const END_POINT = 'http://localhost:9091'
+      const END_POINT = `https://9091-${TEMP_GITPOD_WORKSPACE_URL}`
       const CHAIN_ID = 'secretdev-1'
 
       const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -69,13 +74,14 @@ async function getScrtBalance(secretjs) {
     console.log('userAddress:', userAddress)
 
     // https://github.com/scrtlabs/secret.js#sending-queries
-    // TODO ERROR: http://localhost:9091/cosmos.bank.v1beta1.Query/Balance net::ERR_CONNECTION_REFUSED
     let amount
     try {
-      amount = { balance: { amount } } = await secretjs.query.bank.balance({
+      let queryBalanceResponse = await secretjs.query.bank.balance({
         address: userAddress,
         denom: "uscrt",
       })
+
+      amount = queryBalanceResponse.balance.amount
     } catch (error) {
       console.log('Balance error:', error)
 
@@ -91,8 +97,8 @@ async function addCustomChainToKepler() {
   await window.keplr.experimentalSuggestChain({
     chainId: 'secretdev-1',
     chainName: 'LocalSecret',
-    rpc: 'http://localhost:26657',
-    rest: 'http://localhost:1317',
+    rpc: `https://26657-${TEMP_GITPOD_WORKSPACE_URL}`,
+    rest: `https://1317-${TEMP_GITPOD_WORKSPACE_URL}`,
     bip44: {
       coinType: 529,
     },
