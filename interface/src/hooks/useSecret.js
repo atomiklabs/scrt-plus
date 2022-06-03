@@ -1,11 +1,12 @@
 import { useEffect, useState, createContext, useContext } from 'react'
 import { SecretNetworkClient } from 'secretjs'
 
-// TODO FIX OPEN OSX ERROR: localhost:9091, 1337, 26657 -> Connection Refused
-// Command:   nc -vz localhost 9091
-// Result:    nc: connectx to localhost port 9091 (tcp) failed: Connection refused
-// WORKAROUND: GITPOD_WORKSPACE_URL -> https://www.gitpod.io/docs/environment-variables/
-const TEMP_GITPOD_WORKSPACE_URL = "atomiklabs-scrtnetworkd-opkb4uszz6x.ws-us46.gitpod.io"
+import { CONFIG as CONFIG_LOCAL } from '../config/chain-local'
+import { CONFIG as CONFIG_TESTNET } from '../config/chain-testnet'
+
+// TODO: Make dynamic by passing in envs
+const isTestnet = true
+const getChainConfig = () => isTestnet ? CONFIG_TESTNET : CONFIG_LOCAL
 
 const SecretJSContext = createContext({
   secretjs: null,
@@ -23,9 +24,9 @@ export const SecretContext = ({ children }) => {
 
     // https://github.com/scrtlabs/secret.js#keplr-wallet
     const setupSecretJS = async () => {
+      const { CHAIN_ID, CHAIN_gRPC } = getChainConfig()
+
       await addCustomChainToKepler()
-      const END_POINT = `https://9091-${TEMP_GITPOD_WORKSPACE_URL}`
-      const CHAIN_ID = 'secretdev-1'
 
       const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -39,7 +40,7 @@ export const SecretContext = ({ children }) => {
       const [{ address: myAddress }] = await keplrOfflineSigner.getAccounts()
 
       const secretjs = await SecretNetworkClient.create({
-        grpcWebUrl: END_POINT,
+        grpcWebUrl: CHAIN_gRPC,
         chainId: CHAIN_ID,
         wallet: keplrOfflineSigner,
         walletAddress: myAddress,
@@ -68,8 +69,10 @@ export const useSecret = () => useContext(SecretJSContext)
 async function getScrtBalance(secretjs) {
   console.log('secretjs:', secretjs)
 
+  const { CHAIN_ID } = getChainConfig()
+
   if (secretjs) {
-    let keplrOfflineSigner = window.getOfflineSigner('secret-2')
+    const keplrOfflineSigner = window.getOfflineSignerOnlyAmino(CHAIN_ID)
     const [{ address: userAddress }] = await keplrOfflineSigner.getAccounts()
     console.log('userAddress:', userAddress)
 
@@ -94,11 +97,13 @@ async function getScrtBalance(secretjs) {
 // https://docs.scrt.network/dev/LocalSecret.html#keplr
 // To add a custom chain to Keplr, use this code:
 async function addCustomChainToKepler() {
+  const { CHAIN_ID, CHAIN_NAME, CHAIN_RPC, CHAIN_REST } = getChainConfig()
+
   await window.keplr.experimentalSuggestChain({
-    chainId: 'secretdev-1',
-    chainName: 'LocalSecret',
-    rpc: `https://26657-${TEMP_GITPOD_WORKSPACE_URL}`,
-    rest: `https://1317-${TEMP_GITPOD_WORKSPACE_URL}`,
+    chainId: CHAIN_ID,
+    chainName: CHAIN_NAME,
+    rpc: CHAIN_RPC,
+    rest: CHAIN_REST,
     bip44: {
       coinType: 529,
     },
