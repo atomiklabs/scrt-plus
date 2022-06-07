@@ -3,6 +3,8 @@ import { Wallet, SecretNetworkClient, fromUtf8 } from 'secretjs'
 import fs from 'fs'
 import assert from 'assert'
 
+import { updateUIContractAddresses } from '../lib/utils'
+
 // Returns a client with which we can interact with secret network
 const initializeClient = async (endpoint: string, chainId: string) => {
   const wallet = new Wallet() // Use default constructor of wallet to generate random mnemonic.
@@ -74,6 +76,9 @@ const initializeContract = async (client: SecretNetworkClient, contractPath: str
 
   console.log(`Contract address: ${contractAddress}`)
 
+  // Update Interface UI
+  updateUIContractAddresses({ contractAddr: contractAddress })
+
   var contractInfo: [string, string] = [contractCodeHash, contractAddress]
   return contractInfo
 }
@@ -113,7 +118,7 @@ async function initializeAndUploadContract() {
 
   await fillUpFromFaucet(client, 100_000_000)
 
-  const [contractHash, contractAddress] = await initializeContract(client, '../contract.wasm')
+  const [contractHash, contractAddress] = await initializeContract(client, 'contract.wasm')
 
   var clientInfo: [SecretNetworkClient, string, string] = [client, contractHash, contractAddress]
   return clientInfo

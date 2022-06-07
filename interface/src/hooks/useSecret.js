@@ -5,7 +5,7 @@ import { CONFIG as CONFIG_LOCAL } from '../config/chain-local'
 import { CONFIG as CONFIG_TESTNET } from '../config/chain-testnet'
 
 // TODO: Make dynamic by passing in envs
-const isTestnet = true
+const isTestnet = false
 const getChainConfig = () => isTestnet ? CONFIG_TESTNET : CONFIG_LOCAL
 
 const SecretJSContext = createContext({

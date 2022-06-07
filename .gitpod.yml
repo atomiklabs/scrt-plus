@@ -10,7 +10,6 @@ tasks:
       make clean
       make build
   - init: |
-      yarn --cwd functional-tests
       yarn --cwd interface && yarn start
 
 ports:
