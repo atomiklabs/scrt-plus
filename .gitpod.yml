@@ -1,8 +1,14 @@
+image:
+  file: .gitpod.Dockerfile
+
 tasks:
   - init: |
       make init
     command: |
       make dev-node/start
+  - init: |
+      make clean
+      make build
   - init: |
       yarn --cwd interface && yarn start
 
