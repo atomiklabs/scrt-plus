@@ -14,15 +14,18 @@ export async function getCount(
   // console.log('secretjs', secretjs)
 
   // TODO Fix:  Request failed with status code 404
-  const countResponse = (await secretjs.query.compute.queryContract({
-    contractAddress: contractAddress,
-    codeHash: contractHash,
-    query: { get_count: {} },
-  })) as CountResponse
+  // const countResponse = (await secretjs.query.compute.queryContract({
+  //   contractAddress: contractAddress,
+  //   codeHash: contractHash,
+  //   query: { get_count: {} },
+  // })) as CountResponse
+
+  const countResponse = await secretjs.query.compute.queryContract({ contractAddress, query: {} });
 
   if ('err"' in countResponse) {
     throw new Error(`Query failed with the following err: ${JSON.stringify(countResponse)}`)
   }
+  console.log({countResponse})
 
-  return countResponse.count
+  return 3 // countResponse.count
 }

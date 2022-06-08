@@ -1,6 +1,7 @@
 init:
-	yarn install
+	yarn install --frozen-lockfile
 	docker pull ghcr.io/scrtlabs/localsecret:v1.3.1
+	cargo check
 .PHONY: init
 
 dev-node/start:
@@ -18,19 +19,20 @@ dev-node/stop:
 .PHONY: build _build
 build: _build compress-wasm
 _build:
-	RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown --features="debug-print"
+	- cd contracts/counter && \
+		RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown --features="debug-print"
+	- cd contracts/snipix && \
+		RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown --features="debug-print"
 
 .PHONY: compress-wasm
 compress-wasm:
-	cp ./target/wasm32-unknown-unknown/release/*.wasm ./contract.wasm
-	@## The following line is not necessary, may work only on linux (extra size optimization)
-	@# wasm-opt -Os ./contract.wasm -o ./contract.wasm
-	cat ./contract.wasm | gzip -9 > ./contract.wasm.gz
+	cp ./target/wasm32-unknown-unknown/release/*.wasm ./artifacts/
+	gzip -k ./artifacts/*.wasm
 
 .PHONY: clean
 clean:
 	cargo clean
-	-rm -f ./contract.wasm ./contract.wasm.gz
+	-rm -f ./artifacts/*.wasm ./artifacts/*.wasm.gz
 
 .PHONY: schema
 schema:

@@ -118,7 +118,7 @@ async function initializeAndUploadContract() {
 
   await fillUpFromFaucet(client, 100_000_000)
 
-  const [contractHash, contractAddress] = await initializeContract(client, 'contract.wasm')
+  const [contractHash, contractAddress] = await initializeContract(client, 'artifacts/counter.wasm')
 
   var clientInfo: [SecretNetworkClient, string, string] = [client, contractHash, contractAddress]
   return clientInfo
