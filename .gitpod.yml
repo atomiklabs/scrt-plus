@@ -2,15 +2,16 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - init: |
-      make init
+  - before: |
+      make setup
     command: |
       make dev-node/start
+      make build
   - init: |
       make clean
       make build
   - init: |
-      yarn --cwd interface && yarn start
+      yarn --cwd interface && yarn start 
 
 ports:
   - port: 9091

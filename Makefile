@@ -1,8 +1,8 @@
-init:
+setup:
 	yarn install --frozen-lockfile
 	docker pull ghcr.io/scrtlabs/localsecret:v1.3.1
 	cargo check
-.PHONY: init
+.PHONY: setup
 
 dev-node/start:
 	cd vendor/localsecret && \
