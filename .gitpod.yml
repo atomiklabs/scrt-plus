@@ -4,14 +4,14 @@ image:
 tasks:
   - before: |
       make setup
-    command: |
+      make build
+
+  - init: |
       make dev-node/start
-      make build
-  - init: |
-      make clean
-      make build
-  - init: |
-      yarn --cwd interface && yarn start 
+      yarn test-counter
+
+  - command: |
+      yarn --cwd interface start 
 
 ports:
   - port: 1317

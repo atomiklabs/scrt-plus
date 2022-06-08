@@ -1,5 +1,6 @@
 setup:
 	yarn install --frozen-lockfile
+	yarn --cwd interface install 
 	docker pull ghcr.io/scrtlabs/localsecret:v1.3.1
 	cargo check
 .PHONY: setup
