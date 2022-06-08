@@ -2,12 +2,13 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - before: |
-      make setup
+  - before:
+      make setup && \
       make build
 
-  - init: |
-      make dev-node/start
+  - init:
+      make dev-node/start && \
+      sleep 10 && \
       yarn test-counter
 
   - command: |
