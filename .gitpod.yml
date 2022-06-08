@@ -14,7 +14,15 @@ tasks:
       yarn --cwd interface && yarn start 
 
 ports:
+  - port: 1317
+    visibility: public
+  - port: 3000
+    visibility: public
+  - port: 5000
+    visibility: public
   - port: 9091
+    visibility: public
+  - port: 26657
     visibility: public
 
 vscode:
