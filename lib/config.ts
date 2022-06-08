@@ -1,15 +1,10 @@
-// TODO FIX OPEN OSX ERROR: localhost:9091, 1337, 26657 -> Connection Refused
-// Command:   nc -vz localhost 9091
-// Result:    nc: connectx to localhost port 9091 (tcp) failed: Connection refused
-// WORKAROUND: GITPOD_WORKSPACE_FULL_HOSTNAME -> https://www.gitpod.io/docs/environment-variables/
-const GITPOD_WORKSPACE_FULL_HOSTNAME = `${process.env.GITPOD_WORKSPACE_ID}.${process.env.GITPOD_WORKSPACE_CLUSTER_HOST}`
 export const LOCAL_CONFIG = {
   NETWORK: "local",
   CHAIN_ID: 'secretdev-1',
   CHAIN_NAME: 'Secret Local',
-  CHAIN_gRPC: `https://9091-${GITPOD_WORKSPACE_FULL_HOSTNAME}`,
-  CHAIN_RPC: `https://26657-${GITPOD_WORKSPACE_FULL_HOSTNAME}`,
-  CHAIN_REST: `https://1317-${GITPOD_WORKSPACE_FULL_HOSTNAME}`,
+  CHAIN_gRPC: 'http://localhost:9091',
+  CHAIN_RPC: 'http://localhost:26657',
+  CHAIN_REST: 'http://localhost:1317',
 }
 
 // https://faucet.secrettestnet.io/ (faucet)

@@ -26,8 +26,9 @@ _build:
 
 .PHONY: compress-wasm
 compress-wasm:
+	rm -f ./artifacts/*.wasm ./artifacts/*.wasm.gz
 	cp ./target/wasm32-unknown-unknown/release/*.wasm ./artifacts/
-	gzip -k ./artifacts/*.wasm
+	gzip -k -9 ./artifacts/*.wasm
 
 .PHONY: clean
 clean:
