@@ -77,7 +77,7 @@ const initializeContract = async (client: SecretNetworkClient, contractPath: str
   console.log(`Contract address: ${contractAddress}`)
 
   // Update Interface UI
-  updateUIContractAddresses({ contractAddr: contractAddress })
+  updateUIContractAddresses({ contractAddr: contractAddress, contractHash: contractCodeHash })
 
   var contractInfo: [string, string] = [contractCodeHash, contractAddress]
   return contractInfo

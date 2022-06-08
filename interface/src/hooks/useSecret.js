@@ -67,8 +67,6 @@ export const SecretContext = ({ children }) => {
 export const useSecret = () => useContext(SecretJSContext)
 
 async function getScrtBalance(secretjs) {
-  console.log('secretjs:', secretjs)
-
   const { CHAIN_ID } = getChainConfig()
 
   if (secretjs) {

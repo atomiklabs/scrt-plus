@@ -5,7 +5,7 @@ import { LOCAL_CONFIG, TESTNET_CONFIG, MAINNET_CONFIG } from './config'
 
 // TODO: Dynamic deployed contract name and address -> loadConnections
 // https://github.com/terra-money/terrain/blob/a249da233393e0020b1ab90676f54b1ad9641a42/src/config.ts#L44
-export async function updateUIContractAddresses({ contractAddr }) {
+export async function updateUIContractAddresses({ contractAddr, contractHash }) {
   let chainConfig
 
   switch (process.env.NETWORK) {
@@ -29,6 +29,7 @@ export async function updateUIContractAddresses({ contractAddr }) {
   CHAIN_RPC: '${chainConfig.CHAIN_RPC}',
   CHAIN_REST: '${chainConfig.CHAIN_REST}',
   contractAddr: '${contractAddr}',
+  contractHash: '${contractHash}',
 }\n
 `
 

@@ -1,3 +1,5 @@
+// TODO: implement execute when query finished
+
 import { LCDClient, MsgExecuteContract, Fee } from "@terra-money/terra.js";
 import { contractAdress } from "./address";
 
@@ -49,3 +51,25 @@ export const increment = _exec({ increment: {} });
 
 export const reset = async (wallet, count) =>
   _exec({ reset: { count } })(wallet);
+
+
+
+async function incrementTx(client: SecretNetworkClient, contractHash: string, contractAddess: string) {
+  const tx = await client.tx.compute.executeContract(
+    {
+      sender: client.address,
+      contractAddress: contractAddess,
+      codeHash: contractHash,
+      msg: {
+        increment: {},
+      },
+      sentFunds: [],
+    },
+    {
+      gasLimit: 200000,
+    }
+  )
+
+  //let parsedTransactionData = JSON.parse(fromUtf8(tx.data[0])); // In our case we don't really need to access transaction data
+  console.log(`Increment TX used ${tx.gasUsed} gas`)
+}
