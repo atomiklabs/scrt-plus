@@ -1,0 +1,1 @@
+pub use atl_snip20_reference_impl::contract::*;
