@@ -3,22 +3,14 @@ image:
 
 tasks:
   - before:
-      make setup && \
-      make build
+      make setup build
 
   - init:
-      make dev-node/start && \
-      sleep 10 && \
-      yarn test-counter
+      make dev-node/start
   
-  - init: |
-      export EDITOR="command gp open -w" VISUAL="command gp open -w"
-      cp -f /workspace/ohmyzsh/templates/zshrc.zsh-template ~/.zshrc
-      ln -sf /workspace/ohmyzsh ~/.oh-my-zsh
-    command: exec zsh
+  - init:
+      yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-  - command: |
-      yarn --cwd interface start 
 
 ports:
   - port: 1317
