@@ -1,6 +1,7 @@
-import { SecretNetworkClient, Wallet } from "secretjs";
+import { MsgSnip721Mint, SecretNetworkClient, ViewingKey, Wallet } from "secretjs";
 import fs from 'fs';
 import { MsgCreateViewingKey } from "secretjs/dist/extensions/access_control/viewing_key/msgs";
+import { GetBalanceResponse } from "secretjs/dist/extensions/snip20/types";
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -48,15 +49,13 @@ async function setup({ wallet, walletAddress }: SetupArgs = _defaultSetup) {
 
 async function setupSnipix({ wallet, walletAddress }: SetupArgs = _defaultSetup) {
   const { client } = await setup({ wallet, walletAddress })
-  const { contractAddress, contractCodeHash } = await initializeContract(client, '/workspace/scrt-network-dev-setup-example/artifacts/snipix.wasm')
+  const { contractAddress, contractCodeHash } = await initializeContract(client, './artifacts/snipix.wasm')
 
   return { client, contractAddress, contractCodeHash };
 }
 
 async function initializeContract(client: SecretNetworkClient, contractPath: string) {
   const wasmCode = fs.readFileSync(contractPath)
-  console.log('Uploading contract')
-
   const uploadReceipt = await client.tx.compute.storeCode(
     {
       wasmByteCode: wasmCode,
@@ -70,7 +69,6 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
   )
 
   if (uploadReceipt.code !== 0) {
-    console.log(`Failed to get code id: ${JSON.stringify(uploadReceipt.rawLog)}`)
     throw new Error(`Failed to upload contract`)
   }
 
@@ -79,30 +77,37 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
   })
 
   const codeId = Number(codeIdKv!.value)
-  console.log('Contract codeId: ', codeId)
-
   const contractCodeHash = await client.query.compute.codeHash(codeId)
-  console.log(`Contract hash: ${contractCodeHash}`)
 
   const prngSeed = 'ZW5pZ21hLXJvY2tzCg==';
-  console.log({ prngSeed })
+
   const initMsg = {
     "admin": null,
     "config": null,
     "decimals": 6,
-    "initial_balances": null,
+    "initial_balances": [
+      {
+        address: wallets[0].address,
+        amount: (100_000_000).toString(),
+      },
+      {
+        address: wallets[1].address,
+        amount: (987_654_321).toString(),
+      },
+    ],
     "name": "atl-snp-20",
     "prng_seed": prngSeed,
     "symbol": "ATLSPX"
   }
-  console.log({ initMsg })
+
   const contract = await client.tx.compute.instantiateContract(
     {
       sender: client.address,
       codeId,
-      initMsg, // Initialize our counter to start from 4. This message will trigger our Init function
+      initMsg,
       codeHash: contractCodeHash,
-      label: 'My contract' + Math.ceil(Math.random() * 10000), // The label should be unique for every contract, add random string in order to maintain uniqueness
+      // The label should be unique for every contract, add random string in order to maintain uniqueness
+      label: `Token ${initMsg.symbol}#${Math.ceil(Math.random() * 10000)}`,
     },
     {
       gasLimit: 1000000,
@@ -116,8 +121,6 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
   const contractAddress = contract.arrayLog!.find(
     log => log.type === 'message' && log.key === 'contract_address'
   )!.value
-
-  console.log(`Contract address: ${contractAddress}`)
 
   return { contractCodeHash, contractAddress }
 }
@@ -178,7 +181,7 @@ describe("snipix setup", () => {
     expect(contractAddress).toBeDefined();
   })
 
-  it.only("should create viewing key", async () => {
+  it("should create viewing key", async () => {
     const bob = wallets[1];
 
     const { client, contractAddress, contractCodeHash } = await setupSnipix({
@@ -201,8 +204,20 @@ describe("snipix setup", () => {
 
     expect(result).toBeDefined();
 
-    const viewingKey = result.data[0];
+    const viewingKey = JSON.parse(Buffer.from(result.data[0]).toString('utf-8'));
+    const queryMsg = {
+      balance: {
+        address: wallets[1].address,
+        key: viewingKey.create_viewing_key.key
+      }
+    };
 
-    console.log(viewingKey)
+    const queryResult = await client.query.compute.queryContract({
+      codeHash: contractCodeHash,
+      query: queryMsg,
+      contractAddress,
+    }) as GetBalanceResponse;
+
+    expect(queryResult.balance.amount).toBe('987654321')
   })
 })
