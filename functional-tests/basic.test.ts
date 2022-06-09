@@ -81,11 +81,11 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
 
   const prngSeed = 'ZW5pZ21hLXJvY2tzCg==';
 
-  const initMsg = {
-    "admin": null,
-    "config": null,
-    "decimals": 6,
-    "initial_balances": [
+  const baseInitMsg = {
+    admin: null,
+    config: null,
+    decimals: 6,
+    initial_balances: [
       {
         address: wallets[0].address,
         amount: (100_000_000).toString(),
@@ -95,9 +95,13 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
         amount: (987_654_321).toString(),
       },
     ],
-    "name": "atl-snp-20",
-    "prng_seed": prngSeed,
-    "symbol": "ATLSPX"
+    name: "atl-snp-20",
+    prng_seed: prngSeed,
+    symbol: "ATLSPX"
+  }
+
+  const initMsg = {
+    base_init_msg: baseInitMsg,
   }
 
   const contract = await client.tx.compute.instantiateContract(
@@ -107,7 +111,7 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
       initMsg,
       codeHash: contractCodeHash,
       // The label should be unique for every contract, add random string in order to maintain uniqueness
-      label: `Token ${initMsg.symbol}#${Math.ceil(Math.random() * 10000)}`,
+      label: `Token ${initMsg.base_init_msg.symbol}#${Math.ceil(Math.random() * 10000)}`,
     },
     {
       gasLimit: 1000000,
@@ -181,7 +185,7 @@ describe("snipix setup", () => {
     expect(contractAddress).toBeDefined();
   })
 
-  it("should create viewing key", async () => {
+  it.only("should create viewing key", async () => {
     const bob = wallets[1];
 
     const { client, contractAddress, contractCodeHash } = await setupSnipix({
