@@ -10,6 +10,12 @@ tasks:
       make dev-node/start && \
       sleep 10 && \
       yarn test-counter
+  
+  - init: |
+      export EDITOR="command gp open -w" VISUAL="command gp open -w"
+      cp -f /workspace/ohmyzsh/templates/zshrc.zsh-template ~/.zshrc
+      ln -sf /workspace/ohmyzsh ~/.oh-my-zsh
+    command: exec zsh
 
   - command: |
       yarn --cwd interface start 

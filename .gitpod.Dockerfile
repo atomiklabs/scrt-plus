@@ -1,7 +1,7 @@
 FROM gitpod/workspace-full:latest
 
 RUN sudo apt-get update \
-    && sudo apt-get install -y jq \
+    && sudo apt-get install -y jq zsh \
     && sudo rm -rf /var/lib/apt/lists/*
 
 RUN rustup target add wasm32-unknown-unknown
