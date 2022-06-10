@@ -1,4 +1,5 @@
 pub mod contract;
+mod marketing_info;
 pub mod msg;
 
 #[cfg(not(feature = "library"))]

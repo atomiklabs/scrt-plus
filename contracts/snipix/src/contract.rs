@@ -1,4 +1,7 @@
-use crate::msg::{HandleMsg, InitMsg, QueryMsg};
+use crate::{
+    marketing_info::init_marketing_info,
+    msg::{HandleMsg, ExtendedInitMsg, QueryMsg},
+};
 pub use atl_snip20_reference_impl::contract::*;
 use cosmwasm_std::{
     Api, Env, Extern, HandleResponse, InitResponse, Querier, QueryResult, StdResult, Storage,
@@ -7,8 +10,13 @@ use cosmwasm_std::{
 pub fn init<S: Storage, A: Api, Q: Querier>(
     deps: &mut Extern<S, A, Q>,
     env: Env,
-    msg: InitMsg,
+    msg: ExtendedInitMsg,
 ) -> StdResult<InitResponse> {
+
+    if let Some(marketing_info) = msg.clone().marketing {
+        init_marketing_info(deps, marketing_info)?;
+    }
+
     atl_snip20_reference_impl::contract::init(deps, env, msg.into())
 }
 

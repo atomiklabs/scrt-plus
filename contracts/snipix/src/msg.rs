@@ -1,7 +1,7 @@
-pub use atl_snip20_reference_impl::msg::{InitMsg as BaseInitMsg, *};
+pub use atl_snip20_reference_impl::msg::*;
 use cosmwasm_std::Binary;
 use schemars::JsonSchema;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// This is used for uploading logo data, or setting it in InstantiateData
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
@@ -35,14 +35,14 @@ pub struct InstantiateMarketingInfo {
     pub logo: Option<Logo>,
 }
 
-#[derive(Serialize, Deserialize, JsonSchema)]
-pub struct InitMsg {
-    pub base_init_msg: BaseInitMsg,
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, JsonSchema)]
+pub struct ExtendedInitMsg {
+    pub base_init_msg: InitMsg,
     pub marketing: Option<InstantiateMarketingInfo>,
 }
 
-impl Into<BaseInitMsg> for InitMsg {
-    fn into(self) -> BaseInitMsg {
+impl Into<InitMsg> for ExtendedInitMsg {
+    fn into(self) -> InitMsg {
         self.base_init_msg
     }
 }

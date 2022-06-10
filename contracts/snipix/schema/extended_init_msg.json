@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "InitMsg",
+  "title": "ExtendedInitMsg",
   "type": "object",
   "required": [
     "base_init_msg"
