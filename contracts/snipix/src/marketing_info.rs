@@ -31,6 +31,7 @@ pub fn query_marketing_info<S: Storage, A: Api, Q: Querier>(
     let marketing_info = read_marketing_info(&deps.storage).load()?;
 
     let response = QueryAnswer::MarketingInfo { marketing_info };
+    
     to_binary(&response)
 }
 

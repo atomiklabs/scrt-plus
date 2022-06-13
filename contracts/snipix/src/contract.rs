@@ -40,3 +40,81 @@ pub fn query<S: Storage, A: Api, Q: Querier>(deps: &Extern<S, A, Q>, msg: QueryM
         msg => atl_snip20_reference_impl::contract::query(deps, msg.try_into()?),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::msg::{Logo, MarketingInfo, QueryAnswer};
+    use cosmwasm_std::{
+        from_binary,
+        testing::{mock_dependencies, mock_env, MockApi, MockQuerier, MockStorage},
+        Binary, HumanAddr,
+    };
+
+    fn init_helper(
+        marketing_info: Option<MarketingInfo>,
+    ) -> (
+        StdResult<InitResponse>,
+        Extern<MockStorage, MockApi, MockQuerier>,
+    ) {
+        let mut deps = mock_dependencies(20, &[]);
+        let env = mock_env("instantiator", &[]);
+
+        let init_msg = InitMsg {
+            name: "sec-sec".to_string(),
+            admin: Some(HumanAddr("admin".to_string())),
+            symbol: "SECSEC".to_string(),
+            decimals: 8,
+            initial_balances: None,
+            prng_seed: Binary::from("lolz fun yay".as_bytes()),
+            config: None,
+            marketing_info,
+        };
+
+        (init(&mut deps, env, init_msg), deps)
+    }
+
+    #[test]
+    fn test_initiate_marketing_info() {
+        let init_marketing_info = Some(MarketingInfo {
+            project: None,
+            description: None,
+            marketing: None,
+            logo: Some(Logo::Url(
+                "https://assets.coingecko.com/coins/images/11871/large/Secret.png".into(),
+            )),
+        });
+
+        let (_, mut deps) = init_helper(init_marketing_info.clone());
+
+        let query_result: QueryAnswer =
+            from_binary(&query(&deps, QueryMsg::MarketingInfo {}).unwrap()).unwrap();
+
+        match query_result {
+            QueryAnswer::MarketingInfo { marketing_info } => {
+                assert_eq!(init_marketing_info, marketing_info)
+            }
+            _ => panic!("Impossible"),
+        }
+
+        let _ = handle(
+            &mut deps,
+            mock_env("sender", &[]),
+            HandleMsg::SetMarketingInfo {
+                marketing_info: None,
+            },
+        )
+        .unwrap();
+
+        let query_result: QueryAnswer =
+            from_binary(&query(&deps, QueryMsg::MarketingInfo {}).unwrap()).unwrap();
+
+        match query_result {
+            QueryAnswer::MarketingInfo { marketing_info } => {
+                assert_eq!(marketing_info, None)
+            }
+            _ => panic!("Impossible"),
+        }
+
+    }
+}
