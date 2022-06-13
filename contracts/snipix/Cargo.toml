@@ -35,6 +35,7 @@ debug-print = ["cosmwasm-std/debug-print"]
 
 [dependencies]
 cosmwasm-std = { version = "0.10.1", package = "secret-cosmwasm-std" }
+cosmwasm-storage = { version = "0.10", package = "secret-cosmwasm-storage" }
 secret-toolkit = { version = "0.3", features = ["permit"] }
 schemars = "0.7"
 serde = { version = "1.0.103", default-features = false, features = ["derive"] }
@@ -42,7 +43,7 @@ serde = { version = "1.0.103", default-features = false, features = ["derive"] }
 [dependencies.atl-snip20-reference-impl]
 git = "https://github.com/atomiklabs/snip20-reference-impl"
 package = "snip20-reference-impl"
-version = "1.5.0"
+version = "1.5.1"
 features = ["library"]
 
 [dev-dependencies]

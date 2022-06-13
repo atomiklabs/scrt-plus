@@ -1,6 +1,8 @@
+use std::convert::TryInto;
+
 use crate::{
-    marketing_info::init_marketing_info,
-    msg::{HandleMsg, ExtendedInitMsg, QueryMsg},
+    marketing_info::{handle_set_marketing_info, init_marketing_info, query_marketing_info},
+    msg::{HandleMsg, InitMsg, QueryMsg},
 };
 pub use atl_snip20_reference_impl::contract::*;
 use cosmwasm_std::{
@@ -10,10 +12,9 @@ use cosmwasm_std::{
 pub fn init<S: Storage, A: Api, Q: Querier>(
     deps: &mut Extern<S, A, Q>,
     env: Env,
-    msg: ExtendedInitMsg,
+    msg: InitMsg,
 ) -> StdResult<InitResponse> {
-
-    if let Some(marketing_info) = msg.clone().marketing {
+    if let Some(marketing_info) = msg.clone().marketing_info {
         init_marketing_info(deps, marketing_info)?;
     }
 
@@ -25,9 +26,17 @@ pub fn handle<S: Storage, A: Api, Q: Querier>(
     env: Env,
     msg: HandleMsg,
 ) -> StdResult<HandleResponse> {
-    atl_snip20_reference_impl::contract::handle(deps, env, msg)
+    match msg {
+        HandleMsg::SetMarketingInfo { marketing_info } => {
+            handle_set_marketing_info(deps, marketing_info)
+        }
+        msg => atl_snip20_reference_impl::contract::handle(deps, env, msg.try_into()?),
+    }
 }
 
 pub fn query<S: Storage, A: Api, Q: Querier>(deps: &Extern<S, A, Q>, msg: QueryMsg) -> QueryResult {
-    atl_snip20_reference_impl::contract::query(deps, msg)
+    match msg {
+        QueryMsg::MarketingInfo {} => query_marketing_info(deps),
+        msg => atl_snip20_reference_impl::contract::query(deps, msg.try_into()?),
+    }
 }
