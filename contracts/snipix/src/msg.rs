@@ -209,6 +209,7 @@ pub enum HandleMsg {
     // MarketingInfo
     SetMarketingInfo {
         marketing_info: Option<MarketingInfo>,
+        padding: Option<String>,
     },
 }
 
