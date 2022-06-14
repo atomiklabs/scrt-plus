@@ -27,9 +27,7 @@ pub fn handle<S: Storage, A: Api, Q: Querier>(
     msg: HandleMsg,
 ) -> StdResult<HandleResponse> {
     match msg {
-        HandleMsg::SetMarketingInfo { marketing_info } => {
-            handle_set_marketing_info(deps, marketing_info)
-        }
+        HandleMsg::SetMarketingInfo { marketing_info, .. } => handle_set_marketing_info(deps, marketing_info),
         msg => atl_snip20_reference_impl::contract::handle(deps, env, msg.try_into()?),
     }
 }
@@ -120,6 +118,7 @@ mod tests {
             mock_env("sender", &[]),
             HandleMsg::SetMarketingInfo {
                 marketing_info: wanted_marketing_info.clone(),
+                padding: None,
             },
         );
 
