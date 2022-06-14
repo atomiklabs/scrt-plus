@@ -2,8 +2,8 @@ import { MsgSnip721Mint, SecretNetworkClient, ViewingKey, Wallet } from 'secretj
 import fs from 'fs'
 import { MsgCreateViewingKey } from 'secretjs/dist/extensions/access_control/viewing_key/msgs'
 import { GetBalanceResponse } from 'secretjs/dist/extensions/snip20/types'
-import { InitMsg } from '../artifacts/contract-types'
-import { Binary, MarketingInfoResponse, SnipixInitMsg } from '../lib/types'
+import { InitMsg } from '../../artifacts/contract-types'
+import { Binary, MarketingInfoResponse, SnipixInitMsg } from '../../lib/types'
 import { randomUUID } from 'node:crypto'
 
 jest.setTimeout(1000 * 60 * 5)
@@ -226,7 +226,7 @@ describe('snipix setup', () => {
     expect(queryResult.balance.amount).toBe('987654321')
   })
 
-  it.only('should instantiate SNIPX token contract with marketing info', async () => {
+  it('should instantiate SNIPX token contract with marketing info', async () => {
     const bob = wallets[1]
 
     const init_marketing_info = {
