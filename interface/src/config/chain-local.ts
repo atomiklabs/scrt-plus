@@ -5,7 +5,7 @@ export const CONFIG = {
   CHAIN_gRPC: 'http://localhost:9091',
   CHAIN_RPC: 'http://localhost:26657',
   CHAIN_REST: 'http://localhost:1317',
-  contractAddr: 'secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg',
-  contractHash: '2586f75d246bd6eba6cd68d092b74c5cd6dce2728e556452723ac0fa6b00dfad',
+  contractAddr: 'secret1k0jntykt7e4g3y88ltc60czgjuqdy4c9e8fzek',
+  contractHash: 'e7d3dbf39057d71b70c779d64db371f1a746e59da68fbf3f32835f98dcadca37',
 }
 
