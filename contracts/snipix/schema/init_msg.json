@@ -1,23 +1,66 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ExtendedInitMsg",
+  "title": "InitMsg",
   "type": "object",
   "required": [
-    "base_init_msg"
+    "decimals",
+    "name",
+    "prng_seed",
+    "symbol"
   ],
   "properties": {
-    "base_init_msg": {
-      "$ref": "#/definitions/InitMsg"
-    },
-    "marketing": {
+    "admin": {
       "anyOf": [
         {
-          "$ref": "#/definitions/InstantiateMarketingInfo"
+          "$ref": "#/definitions/HumanAddr"
         },
         {
           "type": "null"
         }
       ]
+    },
+    "config": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/InitConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decimals": {
+      "type": "integer",
+      "format": "uint8",
+      "minimum": 0.0
+    },
+    "initial_balances": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/InitialBalance"
+      }
+    },
+    "marketing_info": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/MarketingInfo"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "prng_seed": {
+      "$ref": "#/definitions/Binary"
+    },
+    "symbol": {
+      "type": "string"
     }
   },
   "definitions": {
@@ -98,60 +141,6 @@
         }
       }
     },
-    "InitMsg": {
-      "type": "object",
-      "required": [
-        "decimals",
-        "name",
-        "prng_seed",
-        "symbol"
-      ],
-      "properties": {
-        "admin": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/HumanAddr"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "config": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/InitConfig"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "decimals": {
-          "type": "integer",
-          "format": "uint8",
-          "minimum": 0.0
-        },
-        "initial_balances": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/InitialBalance"
-          }
-        },
-        "name": {
-          "type": "string"
-        },
-        "prng_seed": {
-          "$ref": "#/definitions/Binary"
-        },
-        "symbol": {
-          "type": "string"
-        }
-      }
-    },
     "InitialBalance": {
       "type": "object",
       "required": [
@@ -164,39 +153,6 @@
         },
         "amount": {
           "$ref": "#/definitions/Uint128"
-        }
-      }
-    },
-    "InstantiateMarketingInfo": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "logo": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Logo"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "marketing": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "project": {
-          "type": [
-            "string",
-            "null"
-          ]
         }
       }
     },
@@ -228,6 +184,39 @@
           }
         }
       ]
+    },
+    "MarketingInfo": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "logo": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Logo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "marketing": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "project": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
     },
     "Uint128": {
       "type": "string"

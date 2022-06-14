@@ -85,7 +85,9 @@ mod tests {
             )),
         });
 
-        let (_, mut deps) = init_helper(init_marketing_info.clone());
+        let (init_result, deps) = init_helper(init_marketing_info.clone());
+
+        assert!(init_result.is_ok());
 
         let query_result: QueryAnswer =
             from_binary(&query(&deps, QueryMsg::MarketingInfo {}).unwrap()).unwrap();
@@ -96,25 +98,41 @@ mod tests {
             }
             _ => panic!("Impossible"),
         }
+    }
 
-        let _ = handle(
+    #[test]
+    fn test_update_marketing_info() {
+        let init_marketing_info = None;
+
+        let (_, mut deps) = init_helper(init_marketing_info.clone());
+
+        let wanted_marketing_info = Some(MarketingInfo {
+            project: Some("Deploy Contracts".into()),
+            description: Some("Click, click, click, and here's your own SNIP-20 token".into()),
+            marketing: None,
+            logo: Some(Logo::Url(
+                "https://assets.coingecko.com/coins/images/11871/large/Secret.png".into(),
+            )),
+        });
+
+        let handle_response = handle(
             &mut deps,
             mock_env("sender", &[]),
             HandleMsg::SetMarketingInfo {
-                marketing_info: None,
+                marketing_info: wanted_marketing_info.clone(),
             },
-        )
-        .unwrap();
+        );
+
+        assert!(handle_response.is_ok());
 
         let query_result: QueryAnswer =
             from_binary(&query(&deps, QueryMsg::MarketingInfo {}).unwrap()).unwrap();
 
         match query_result {
             QueryAnswer::MarketingInfo { marketing_info } => {
-                assert_eq!(marketing_info, None)
+                assert_eq!(marketing_info, wanted_marketing_info)
             }
             _ => panic!("Impossible"),
         }
-
     }
 }

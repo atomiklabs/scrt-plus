@@ -1,35 +1,50 @@
-import { MsgSnip721Mint, SecretNetworkClient, ViewingKey, Wallet } from "secretjs";
-import fs from 'fs';
-import { MsgCreateViewingKey } from "secretjs/dist/extensions/access_control/viewing_key/msgs";
-import { GetBalanceResponse } from "secretjs/dist/extensions/snip20/types";
+import { MsgSnip721Mint, SecretNetworkClient, ViewingKey, Wallet } from 'secretjs'
+import fs from 'fs'
+import { MsgCreateViewingKey } from 'secretjs/dist/extensions/access_control/viewing_key/msgs'
+import { GetBalanceResponse } from 'secretjs/dist/extensions/snip20/types'
+import { InitMsg } from '../artifacts/contract-types'
+import { Binary, MarketingInfoResponse, SnipixInitMsg } from '../lib/types'
+import { randomUUID } from 'node:crypto'
 
-jest.setTimeout(1000 * 60 * 5);
+jest.setTimeout(1000 * 60 * 5)
 
 // Test accounts data from https://docs.scrt.network/dev/LocalSecret.html#accounts
 
 const TEST_ACCOUNT_A_MNEMONIC =
-  "grant rice replace explain federal release fix clever romance raise often wild taxi quarter soccer fiber love must tape steak together observe swap guitar";
+  'grant rice replace explain federal release fix clever romance raise often wild taxi quarter soccer fiber love must tape steak together observe swap guitar'
 
 const TEST_ACCOUNT_B_MNEMONIC =
-  "jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow";
+  'jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow'
 
 const TEST_ACCOUNT_C_MNEMONIC =
-  "chair love bleak wonder skirt permit say assist aunt credit roast size obtain minute throw sand usual age smart exact enough room shadow charge";
+  'chair love bleak wonder skirt permit say assist aunt credit roast size obtain minute throw sand usual age smart exact enough room shadow charge'
 
 type SetupArgs = {
-  wallet?: Wallet;
-  walletAddress?: string;
+  wallet?: Wallet
+  walletAddress?: string
+  initMsg?: SnipixInitMsg
 }
 
-let wallets: Array<Wallet>;
+let wallets: Array<Wallet>
 
 const _defaultSetup: SetupArgs = {
   wallet: undefined,
   walletAddress: undefined,
 }
 
+const _baseInitMsg: SnipixInitMsg = {
+  name: 'Test token',
+  symbol: 'TTX',
+  decimals: 6,
+  prng_seed: createPrngSeed(),
+}
+
+function createPrngSeed(): Binary {
+  return Buffer.from(randomUUID()).toString('base64')
+}
+
 beforeAll(() => {
-  wallets = [TEST_ACCOUNT_A_MNEMONIC, TEST_ACCOUNT_B_MNEMONIC, TEST_ACCOUNT_C_MNEMONIC].map(m => new Wallet(m));
+  wallets = [TEST_ACCOUNT_A_MNEMONIC, TEST_ACCOUNT_B_MNEMONIC, TEST_ACCOUNT_C_MNEMONIC].map(m => new Wallet(m))
 })
 
 afterAll(() => {
@@ -38,23 +53,23 @@ afterAll(() => {
 
 async function setup({ wallet, walletAddress }: SetupArgs = _defaultSetup) {
   const client = await SecretNetworkClient.create({
-    chainId: "secretdev-1",
-    grpcWebUrl: "http://localhost:9091",
+    chainId: 'secretdev-1',
+    grpcWebUrl: 'http://localhost:9091',
     wallet,
     walletAddress,
-  });
+  })
 
-  return { client };
+  return { client }
 }
 
-async function setupSnipix({ wallet, walletAddress }: SetupArgs = _defaultSetup) {
+async function setupSnipix({ wallet, walletAddress, initMsg = _baseInitMsg }: SetupArgs = _defaultSetup) {
   const { client } = await setup({ wallet, walletAddress })
-  const { contractAddress, contractCodeHash } = await initializeContract(client, './artifacts/snipix.wasm')
+  const { contractAddress, contractCodeHash } = await initializeContract(client, './artifacts/snipix.wasm', initMsg)
 
-  return { client, contractAddress, contractCodeHash };
+  return { client, contractAddress, contractCodeHash }
 }
 
-async function initializeContract(client: SecretNetworkClient, contractPath: string) {
+async function initializeContract(client: SecretNetworkClient, contractPath: string, initMsg: SnipixInitMsg) {
   const wasmCode = fs.readFileSync(contractPath)
   const uploadReceipt = await client.tx.compute.storeCode(
     {
@@ -79,31 +94,6 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
   const codeId = Number(codeIdKv!.value)
   const contractCodeHash = await client.query.compute.codeHash(codeId)
 
-  const prngSeed = 'ZW5pZ21hLXJvY2tzCg==';
-
-  const baseInitMsg = {
-    admin: null,
-    config: null,
-    decimals: 6,
-    initial_balances: [
-      {
-        address: wallets[0].address,
-        amount: (100_000_000).toString(),
-      },
-      {
-        address: wallets[1].address,
-        amount: (987_654_321).toString(),
-      },
-    ],
-    name: "atl-snp-20",
-    prng_seed: prngSeed,
-    symbol: "ATLSPX"
-  }
-
-  const initMsg = {
-    base_init_msg: baseInitMsg,
-  }
-
   const contract = await client.tx.compute.instantiateContract(
     {
       sender: client.address,
@@ -111,7 +101,7 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
       initMsg,
       codeHash: contractCodeHash,
       // The label should be unique for every contract, add random string in order to maintain uniqueness
-      label: `Token ${initMsg.base_init_msg.symbol}#${Math.ceil(Math.random() * 10000)}`,
+      label: `Token ${initMsg.symbol}#${Math.ceil(Math.random() * 10000)}`,
     },
     {
       gasLimit: 1000000,
@@ -129,99 +119,162 @@ async function initializeContract(client: SecretNetworkClient, contractPath: str
   return { contractCodeHash, contractAddress }
 }
 
-describe("basic setup", () => {
-  it("handles bank transfers", async () => {
-    const alice = wallets[0];
-    const bob = wallets[1];
+describe('basic setup', () => {
+  it('handles bank transfers', async () => {
+    const alice = wallets[0]
+    const bob = wallets[1]
 
     const { client } = await setup({
       wallet: bob,
-      walletAddress: bob.address
-    });
+      walletAddress: bob.address,
+    })
 
     const balance_response_pre = await client.query.bank.balance({
       address: alice.address,
-      denom: "uscrt",
-    });
+      denom: 'uscrt',
+    })
 
-    const transferAmount = 789_321;
-    const amount = transferAmount.toString();
+    const transferAmount = 789_321
+    const amount = transferAmount.toString()
 
     const transfer = await client.tx.bank.send({
       fromAddress: bob.address,
       toAddress: alice.address,
-      amount: [{ amount, denom: "uscrt" }],
-    });
+      amount: [{ amount, denom: 'uscrt' }],
+    })
 
-    expect(transfer.code).toEqual(0);
+    expect(transfer.code).toEqual(0)
 
     const balance_response_post = await client.query.bank.balance({
       address: alice.address,
-      denom: "uscrt",
-    });
+      denom: 'uscrt',
+    })
 
     const state = {
       balance_response_pre: BigInt(balance_response_pre?.balance?.amount!),
       balance_response_post: BigInt(balance_response_post?.balance?.amount!),
     }
 
-    expect(state.balance_response_pre + BigInt(amount)).toBe(
-      state.balance_response_post
-    );
-  });
-});
+    expect(state.balance_response_pre + BigInt(amount)).toBe(state.balance_response_post)
+  })
+})
 
-describe("snipix setup", () => {
-  it("should instantiate SNIP-20 token contract", async () => {
-    const bob = wallets[1];
+describe('snipix setup', () => {
+  it('should instantiate SNIP-20 token contract', async () => {
+    const bob = wallets[1]
 
     const { client, contractAddress } = await setupSnipix({
       wallet: bob,
-      walletAddress: bob.address
-    });
+      walletAddress: bob.address,
+    })
 
-    expect(client).toBeDefined();
+    expect(client).toBeDefined()
 
-    expect(contractAddress).toBeDefined();
+    expect(contractAddress).toBeDefined()
   })
 
-  it.only("should create viewing key", async () => {
-    const bob = wallets[1];
+  it('should create viewing key', async () => {
+    const bob = wallets[1]
 
     const { client, contractAddress, contractCodeHash } = await setupSnipix({
       wallet: bob,
-      walletAddress: bob.address
-    });
+      walletAddress: bob.address,
+      initMsg: {
+        ..._baseInitMsg,
+        initial_balances: [
+          {
+            address: wallets[0].address,
+            amount: (100_000_000).toString(),
+          },
+          {
+            address: wallets[1].address,
+            amount: (987_654_321).toString(),
+          },
+        ],
+      },
+    })
 
     const result = await client.tx.compute.executeContract(
       new MsgCreateViewingKey({
         codeHash: contractCodeHash,
         msg: {
           create_viewing_key: {
-            entropy: 'badabing'
-          }
+            entropy: 'badabing',
+          },
         },
         sender: client.address,
         contractAddress,
       })
-    );
+    )
 
-    expect(result).toBeDefined();
+    expect(result).toBeDefined()
 
-    const viewingKey = JSON.parse(Buffer.from(result.data[0]).toString('utf-8'));
+    const viewingKey = JSON.parse(Buffer.from(result.data[0]).toString('utf-8'))
     const queryMsg = {
       balance: {
         address: wallets[1].address,
-        key: viewingKey.create_viewing_key.key
-      }
-    };
+        key: viewingKey.create_viewing_key.key,
+      },
+    }
 
-    const queryResult = await client.query.compute.queryContract({
+    const queryResult = (await client.query.compute.queryContract({
       codeHash: contractCodeHash,
       query: queryMsg,
       contractAddress,
-    }) as GetBalanceResponse;
+    })) as GetBalanceResponse
 
     expect(queryResult.balance.amount).toBe('987654321')
+  })
+
+  it.only('should instantiate SNIPX token contract with marketing info', async () => {
+    const bob = wallets[1]
+
+    const init_marketing_info = {
+      logo: {
+        url: 'https://assets.coingecko.com/coins/images/11871/large/Secret.png',
+      },
+    }
+
+    const { client, contractAddress, contractCodeHash } = await setupSnipix({
+      wallet: bob,
+      walletAddress: bob.address,
+      initMsg: {
+        ..._baseInitMsg,
+        marketing_info: init_marketing_info,
+      },
+    })
+
+    let queryResult = (await client.query.compute.queryContract({
+      codeHash: contractCodeHash,
+      query: {
+        marketing_info: {},
+      },
+      contractAddress,
+    })) as MarketingInfoResponse
+
+    expect(queryResult.marketing_info?.marketing_info?.logo).toEqual(init_marketing_info.logo)
+
+    const handleResult = await client.tx.compute.executeContract({
+      codeHash: contractCodeHash,
+      msg: {
+        set_marketing_info: {
+          marketing_info: null,
+        },
+      },
+      sender: client.address,
+      contractAddress,
+    })
+
+    expect(handleResult).toBeDefined()
+
+    queryResult = (await client.query.compute.queryContract({
+      codeHash: contractCodeHash,
+      query: {
+        marketing_info: {},
+      },
+      contractAddress,
+    })) as MarketingInfoResponse
+
+    expect(queryResult.marketing_info.marketing_info).toBeNull()
   })
 })

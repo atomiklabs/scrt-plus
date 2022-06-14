@@ -203,6 +203,17 @@
           }
         }
       }
+    },
+    {
+      "type": "object",
+      "required": [
+        "marketing_info"
+      ],
+      "properties": {
+        "marketing_info": {
+          "type": "object"
+        }
+      }
     }
   ],
   "definitions": {
