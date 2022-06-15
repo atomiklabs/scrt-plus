@@ -1,6 +1,5 @@
 # Build results
-/artifacts/**.wasm
-/artifacts/**.wasm.gz
+/artifacts/*
 /target
 Cargo.lock
 node_modules
