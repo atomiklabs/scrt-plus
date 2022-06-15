@@ -97,6 +97,7 @@ export default function App() {
       {secretClient && preferredChain ? (
         <div>
           <p>Wallet connected</p>
+          <button onClick={} />
         </div>
       ) : null}
     </div>
