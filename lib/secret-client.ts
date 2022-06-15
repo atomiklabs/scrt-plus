@@ -28,8 +28,13 @@ export interface StoreCodeResult {
   codeHash: string;
 }
 
+export interface InstantiateContractResult {
+  contractAddress: string
+}
+
 export interface SecretNetworkExtendedClient extends SecretNetworkClient {
   storeCode: (wasmByteCode: Buffer) => Promise<StoreCodeResult>
+  instantiate: (props: MsgInstantiateContractParams) => Promise<InstantiateContractResult>
 }
 
 type CreateClientProps = CreateClientOptions
@@ -110,7 +115,8 @@ export async function createClient(options?: Partial<CreateClientProps>): Promis
 
       return { codeId, codeHash }
     },
-    async intstantiate({ codeId, codeHash, initMsg, label }: MsgInstantiateContractParams) {
+
+    async instantiate({ codeId, codeHash, initMsg, label }: MsgInstantiateContractParams): Promise<InstantiateContractResult> {
       const contract = await client.tx.compute.instantiateContract(
         {
           sender: client.address,

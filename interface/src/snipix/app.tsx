@@ -1,9 +1,15 @@
 import { useCallback, useState } from 'react'
 import { createClient, getPreferredChainInfo } from './secret-client'
-import type { SecretNetworkClient, PreferredChainInfo } from './secret-client'
+import type { ContractManifest, SecretNetworkExtendedClient, PreferredChainInfo } from './secret-client'
 
-export default function App() {
-  const [secretClient, setSecretClient] = useState<SecretNetworkClient | null>()
+const _snipixManifest = require('./snipix.manifest.json')
+
+interface SnipixAppProps {
+  snipixManifest?: ContractManifest
+}
+
+export default function App({ snipixManifest = _snipixManifest }: SnipixAppProps) {
+  const [secretClient, setSecretClient] = useState<SecretNetworkExtendedClient | null>()
   const [preferredChain, setPreferredChain] = useState<PreferredChainInfo>()
 
   const suggestWalletNetworkSwitch = useCallback(async (suggestedChain: PreferredChainInfo) => {
@@ -81,6 +87,36 @@ export default function App() {
       })
   }, [suggestWalletNetworkSwitch])
 
+  const instantiateSnip20Contract = useCallback(
+    async function instantiateSnip20Contract() {
+      if (!secretClient) {
+        throw new Error('Cannot instantiate contract, missing Secret Network client instance')
+      }
+
+      const initMsg = {
+        name: 'Test token',
+        symbol: 'TTX',
+        decimals: 6,
+        prng_seed: btoa(window.crypto.randomUUID()),
+        marketing_info: {
+          project: `Atomik Labs #${window.crypto.randomUUID()}`
+        }
+      }
+
+      const { contractAddress } = await secretClient.instantiate({
+        codeId: snipixManifest.codeId!,
+        codeHash: snipixManifest.codeHash!,
+        sender: secretClient.address,
+        label: `SNIP-20 token #${Math.random() * 1000}`,
+        initMsg
+      })
+
+      await window.keplr!.suggestToken(preferredChain!.chainId, contractAddress)
+
+    },
+    [secretClient, preferredChain, snipixManifest]
+  )
+
   return (
     <div>
       <h1>Yo Secret dApp</h1>
@@ -97,7 +133,7 @@ export default function App() {
       {secretClient && preferredChain ? (
         <div>
           <p>Wallet connected</p>
-          <button onClick={} />
+          <button onClick={instantiateSnip20Contract}>Create token contract</button>
         </div>
       ) : null}
     </div>
