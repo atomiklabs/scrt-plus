@@ -26,6 +26,15 @@ _build:
 	- cd contracts/snipix && \
 		RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown --features="debug-print"
 
+
+build-prod: _build-prod compress-wasm
+_build-prod:
+	- cd contracts/counter && \
+		RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
+	- cd contracts/snipix && \
+		RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
+
+
 .PHONY: compress-wasm
 compress-wasm:
 	rm -f ./artifacts/*.wasm ./artifacts/*.wasm.gz
@@ -40,3 +49,13 @@ clean:
 .PHONY: schema
 schema:
 	cargo run --example schema
+
+.PHONY: local/storeCode/snipix
+local/storeCode/snipix: build
+	CONTRACT_NAME=snipix \
+		yarn env-cmd -r .env-public.js -e local ts-node scripts/upload-contract.ts 
+
+.PHONY: testnet/storeCode/snipix
+testnet/storeCode/snipix: build-prod
+	CONTRACT_NAME=snipix \
+		yarn env-cmd -r .env-public.js -e testnet ts-node scripts/upload-contract.ts 

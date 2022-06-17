@@ -8,4 +8,7 @@ module.exports = {
   testnet: {
     MNEMONIC: 'you shall never commit .env-secrets.js file',
   },
+  mainnet: {
+    MNEMONIC: 'you shall never commit .env-secrets.js file, really',
+  },
 }

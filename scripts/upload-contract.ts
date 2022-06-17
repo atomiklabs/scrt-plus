@@ -4,33 +4,28 @@ import { PATHS } from '../lib/config/paths'
 import { createClient, Wallet } from '../lib/secret-client'
 import type { ContractManifest } from '../lib/secret-client'
 import { readContractManifestFile, writeContractManifestFile } from '../lib/utils'
-import { LOCAL_CONFIG } from '../lib/config'
 
 async function main() {
-  const mnemonic = process.env.MNEMONIC;
-  const chainId = process.env.CHAIN_ID;
-  const grpcWebUrl = process.env.CHAIN_GRPC;
+  const envName = process.env.ENV_NAME!;
+  const mnemonic = process.env.MNEMONIC!;
+  const chainId = process.env.CHAIN_ID!;
+  const grpcWebUrl = process.env.CHAIN_GRPC!;
+  const contractName = process.env.CONTRACT_NAME!;
 
-  const hasAllRequiredEnvsPresent = () => [mnemonic, chainId, grpcWebUrl].every(
+  const hasAllRequiredEnvsPresent = () => [mnemonic, chainId, grpcWebUrl, contractName].every(
     value => typeof value === 'string' && value.length > 0
   );
 
   if (!hasAllRequiredEnvsPresent()) {
-    console.log({ mnemonic, chainId, grpcWebUrl})
-    throw new Error('Missing env vars. Ensure providing all: `MNEMONIC`, `CHAIN_ID`, `CHAIN_GRPC`');
+    throw new Error('Missing env vars. Ensure providing all: `ENV_NAME`, `MNEMONIC`, `CHAIN_ID`, `CHAIN_GRPC`, and `CONTRACT_NAME`');
   }
 
   const offlineSigner = new Wallet(mnemonic)
   const walletAddress = offlineSigner.address
 
-  console.log({mnemonic, chainId, grpcWebUrl})
+  const contractManifestFilePath = `${contractName}.${envName}`
 
-  process.exit(0)
-
-  // TODO: read this value from CLI
-  const contractName = 'snipix'
-
-  let snipixManifest = (await readContractManifestFile(contractName)) as ContractManifest
+  let snipixManifest = (await readContractManifestFile(contractManifestFilePath)) as ContractManifest
 
   const { client } = await createClient({
     chainId,
@@ -46,7 +41,7 @@ async function main() {
     )
   )
 
-  await writeContractManifestFile(contractName, Object.assign({}, snipixManifest, { ...codeStoreResult }))
+  await writeContractManifestFile(contractManifestFilePath, Object.assign({}, snipixManifest, { ...codeStoreResult }))
 }
 
 // Makes the script crash on unhandled rejections instead of silently
