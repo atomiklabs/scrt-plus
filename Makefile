@@ -3,6 +3,7 @@ setup:
 	yarn --cwd interface install 
 	docker pull ghcr.io/scrtlabs/localsecret:v1.3.1
 	cargo check
+	cp .template.env-private.js .env-private.js
 .PHONY: setup
 
 dev-node/start:

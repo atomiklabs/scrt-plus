@@ -4,14 +4,28 @@ import { PATHS } from '../lib/config/paths'
 import { createClient, Wallet } from '../lib/secret-client'
 import type { ContractManifest } from '../lib/secret-client'
 import { readContractManifestFile, writeContractManifestFile } from '../lib/utils'
-
-export const TEST_ACCOUNT_B_MNEMONIC =
-  'jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow'
+import { LOCAL_CONFIG } from '../lib/config'
 
 async function main() {
-  const mnemonic = process.env.MNEMONIC || TEST_ACCOUNT_B_MNEMONIC
+  const mnemonic = process.env.MNEMONIC;
+  const chainId = process.env.CHAIN_ID;
+  const grpcWebUrl = process.env.CHAIN_GRPC;
+
+  const hasAllRequiredEnvsPresent = () => [mnemonic, chainId, grpcWebUrl].every(
+    value => typeof value === 'string' && value.length > 0
+  );
+
+  if (!hasAllRequiredEnvsPresent()) {
+    console.log({ mnemonic, chainId, grpcWebUrl})
+    throw new Error('Missing env vars. Ensure providing all: `MNEMONIC`, `CHAIN_ID`, `CHAIN_GRPC`');
+  }
+
   const offlineSigner = new Wallet(mnemonic)
   const walletAddress = offlineSigner.address
+
+  console.log({mnemonic, chainId, grpcWebUrl})
+
+  process.exit(0)
 
   // TODO: read this value from CLI
   const contractName = 'snipix'
@@ -19,6 +33,8 @@ async function main() {
   let snipixManifest = (await readContractManifestFile(contractName)) as ContractManifest
 
   const { client } = await createClient({
+    chainId,
+    grpcWebUrl,
     wallet: offlineSigner,
     walletAddress,
   })

@@ -16,3 +16,6 @@ node_modules
 # IDEs
 *.iml
 .idea
+
+.env*
+!.env-public.js
