@@ -9,6 +9,10 @@ try {
   console.error(`${error} | Cannot access envSecrets at ${envSecretsPath}`)
 }
 
+const sharedEnvPublic = {
+  SNIPIX_SOURCODE_URL: 'https://github.com/atomiklabs/scrt-network-dev-setup-example/tree/use-snip-20/contracts/snipix',
+}
+
 module.exports = {
   local: {
     ENV_NAME: 'local',
@@ -21,6 +25,7 @@ module.exports = {
     CHAIN_GRPC: 'http://localhost:9091',
     CHAIN_RPC: 'http://localhost:26657',
     CHAIN_REST: 'http://localhost:1317',
+    ...sharedEnvPublic,
   },
   testnet: {
     ENV_NAME: 'testnet',
@@ -30,11 +35,13 @@ module.exports = {
     CHAIN_GRPC: 'http://rpc.pulsar.griptapejs.com:9091',
     CHAIN_RPC: 'https://rpc.pulsar.griptapejs.com',
     CHAIN_REST: 'https://api.pulsar.griptapejs.com',
+    ...sharedEnvPublic,
   },
   mainnet: {
     ENV_NAME: 'mainnet',
     MNEMONIC: envSecrets?.mainnet?.MNEMONIC,
     NETWORK: 'mainnet',
     CHAIN_ID: 'mainnet',
+    ...sharedEnvPublic,
   },
 }

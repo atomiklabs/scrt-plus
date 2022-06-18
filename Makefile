@@ -55,7 +55,18 @@ local/storeCode/snipix: build
 	CONTRACT_NAME=snipix \
 		yarn env-cmd -r .env-public.js -e local ts-node scripts/upload-contract.ts 
 
+.PHONY: local/instantiate/snipix
+local/instantiate/snipix:
+	CONTRACT_NAME=snipix \
+		yarn env-cmd -r .env-public.js -e local ts-node scripts/instantiate-contract.ts 
+
 .PHONY: testnet/storeCode/snipix
 testnet/storeCode/snipix: build-prod
 	CONTRACT_NAME=snipix \
 		yarn env-cmd -r .env-public.js -e testnet ts-node scripts/upload-contract.ts 
+
+
+.PHONY: testnet/instantiate/snipix
+testnet/instantiate/snipix:
+	CONTRACT_NAME=snipix \
+		yarn env-cmd -r .env-public.js -e testnet ts-node scripts/instantiate-contract.ts 

@@ -1,6 +1,4 @@
-import { promises as fs } from 'fs'
-import path from 'path'
-import { PATHS } from '../lib/config/paths'
+import { randomUUID } from 'node:crypto'
 import { createClient, Wallet } from '../lib/secret-client'
 import type { ContractManifest } from '../lib/secret-client'
 import { readContractManifestFile, writeContractManifestFile } from '../lib/utils'
@@ -14,7 +12,6 @@ async function main() {
   const rpcUrl = process.env.CHAIN_RPC!;
   const restUrl = process.env.CHAIN_REST!;
   const contractName = process.env.CONTRACT_NAME!;
-  const contractSourceCodeUrl = process.env.SNIPIX_SOURCODE_URL
 
   const hasAllRequiredEnvsPresent = () => [mnemonic, chainId, grpcUrl, contractName].every(
     value => typeof value === 'string' && value.length > 0
@@ -29,7 +26,17 @@ async function main() {
 
   const contractManifestFilePath = `${contractName}.${envName}`
 
-  let snipixManifest = (await readContractManifestFile(contractManifestFilePath)) as ContractManifest
+  const snipixManifest = (await readContractManifestFile(contractManifestFilePath)) as ContractManifest
+  const codeId = process.env.CODE_ID || snipixManifest.codeId;
+  const codeHash = process.env.CODE_HASH || snipixManifest.codeHash;
+
+  if (!codeId) {
+    throw new Error('Missing `codeId`')
+  }
+
+  if (!codeHash) {
+    throw new Error('Missing `codeHash`')
+  }
 
   const { client } = await createClient({
     wallet: offlineSigner,
@@ -41,16 +48,24 @@ async function main() {
     restUrl, 
   })
 
-  const contractWasmByteCode = await fs.readFile(
-    path.resolve(PATHS.artifacts, `${contractName}.wasm`)
-  )
+  const initMsg = {
+    name: 'Test token',
+    symbol: 'TTX',
+    decimals: 6,
+    prng_seed: Buffer.from(randomUUID()).toString('base64'),
+    marketing_info: {
+      project: `Atomik Labs: Token #${randomUUID()}`
+    }
+  }
 
-  const codeStoreResult = await client.storeCode(
-    contractWasmByteCode,
-    contractSourceCodeUrl
-  )
+  const contractInstantiateResult = await client.instantiateContract({
+    codeId: typeof codeId === 'string' ? parseInt(codeId, 10) : codeId,
+    codeHash,
+    label: 'Snip-20 from Atomiklabs.io',
+    initMsg
+  })
 
-  await writeContractManifestFile(contractManifestFilePath, Object.assign({}, snipixManifest, { ...codeStoreResult }))
+  await writeContractManifestFile(contractManifestFilePath, Object.assign({}, snipixManifest, { ...contractInstantiateResult }))
 }
 
 // Makes the script crash on unhandled rejections instead of silently
