@@ -1,8 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import App from './App'
+const CounterApp = React.lazy(() => import('./App'))
+const SnipixApp = React.lazy(() => import('./snipix/app'))
 // import reportWebVitals from './reportWebVitals';
+
+const App = window.location.search.includes('snipix')
+  ? SnipixApp
+  : CounterApp;
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(

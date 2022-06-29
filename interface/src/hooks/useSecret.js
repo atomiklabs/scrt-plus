@@ -88,7 +88,7 @@ async function getScrtBalance(secretjs) {
 
     }
 
-    console.log(`I have ${Number(amount) / 1e6} SCRT!`)
+    console.log(`I have ${Number(amount) / 1e6} SCRT!`, userAddress)
   }
 }
 

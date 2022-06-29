@@ -1,0 +1,39 @@
+[package]
+name = "snipix"
+version = "0.1.0"
+authors = ["Atomik Labs"]
+edition = "2018"
+
+exclude = [
+  # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
+  "contract.wasm",
+  "hash.txt",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+# for quicker tests, cargo test --lib
+# for more explicit tests, cargo test --features=backtraces
+backtraces = ["cosmwasm-std/backtraces"]
+debug-print = ["cosmwasm-std/debug-print"]
+
+[dependencies]
+cosmwasm-std = { version = "0.10.1", package = "secret-cosmwasm-std" }
+cosmwasm-storage = { version = "0.10", package = "secret-cosmwasm-storage" }
+secret-toolkit = { version = "0.3.0", features = ["permit"] }
+schemars = "0.7"
+serde = { version = "1.0.103", default-features = false, features = ["derive"] }
+
+[dependencies.atl-snip20-reference-impl]
+git = "https://github.com/atomiklabs/snip20-reference-impl"
+package = "snip20-reference-impl"
+version = "1.5.1"
+features = ["library"]
+
+[dev-dependencies]
+cosmwasm-schema = "0.10.1"

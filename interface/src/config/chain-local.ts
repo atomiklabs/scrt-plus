@@ -2,10 +2,10 @@ export const CONFIG = {
   NETWORK: 'local',
   CHAIN_ID: 'secretdev-1',
   CHAIN_NAME: 'Secret Local',
-  CHAIN_gRPC: 'https://9091-atomiklabs-scrtnetworkd-e5iptteirhd.ws-us47.gitpod.io',
-  CHAIN_RPC: 'https://26657-atomiklabs-scrtnetworkd-e5iptteirhd.ws-us47.gitpod.io',
-  CHAIN_REST: 'https://1317-atomiklabs-scrtnetworkd-e5iptteirhd.ws-us47.gitpod.io',
-  contractAddr: 'secret1caj8sp7nkwjrq2qu8nugd2j2v2vv7dgecv4eax',
-  contractHash: '0c99c7953f836f4573cca3b83dedb2a218acbf28a4702227211f4ad740df5c67',
+  CHAIN_gRPC: 'http://localhost:9091',
+  CHAIN_RPC: 'http://localhost:26657',
+  CHAIN_REST: 'http://localhost:1317',
+  contractAddr: 'secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg',
+  contractHash: 'e7d3dbf39057d71b70c779d64db371f1a746e59da68fbf3f32835f98dcadca37',
 }
 

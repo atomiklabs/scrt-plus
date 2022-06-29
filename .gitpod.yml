@@ -2,18 +2,26 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - init: |
-      make init
-    command: |
+  - before:
+      make setup build
+
+  - init:
       make dev-node/start
-  - init: |
-      make clean
-      make build
-  - init: |
-      yarn --cwd interface && yarn start
+  
+  - init:
+      yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
 
 ports:
+  - port: 1317
+    visibility: public
+  - port: 3000
+    visibility: public
+  - port: 5000
+    visibility: public
   - port: 9091
+    visibility: public
+  - port: 26657
     visibility: public
 
 vscode:

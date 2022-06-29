@@ -1,7 +1,9 @@
-import * as fs from 'fs'
+import { promises as fs } from 'fs'
 import path from 'path'
 
-import { LOCAL_CONFIG, TESTNET_CONFIG, MAINNET_CONFIG } from './config'
+import { LOCAL_CONFIG, TESTNET_CONFIG, MAINNET_CONFIG } from './config/index'
+import { PATHS } from './config/paths'
+import type { ContractManifest } from './secret-client'
 
 // TODO: Dynamic deployed contract name and address -> loadConnections
 // https://github.com/terra-money/terrain/blob/a249da233393e0020b1ab90676f54b1ad9641a42/src/config.ts#L44
@@ -33,5 +35,23 @@ export async function updateUIContractAddresses({ contractAddr, contractHash }) 
 }\n
 `
 
-  fs.writeFileSync(path.resolve(configFilePathTarget), configFileContents)
+  await fs.writeFile(path.resolve(configFilePathTarget), configFileContents)
+}
+
+export async function readContractManifestFile(contractName: string): Promise<ContractManifest> {
+  try {
+    const manifestPath = `${PATHS.artifacts}/${contractName}.manifest.json`
+    await fs.access(manifestPath)
+    return require(manifestPath) as ContractManifest
+  } catch (error) {
+    console.error(error)
+    return {} as ContractManifest
+  }
+}
+
+export async function writeContractManifestFile(
+  contractName: string,
+  manifestBody: ContractManifest
+): ReturnType<typeof fs.writeFile> {
+  return fs.writeFile(`${PATHS.artifacts}/${contractName}.manifest.json`, JSON.stringify(manifestBody, null, 4))
 }

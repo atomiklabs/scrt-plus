@@ -1,7 +1,7 @@
 # Build results
+/artifacts/*
 /target
 Cargo.lock
-contract.wasm*
 node_modules
 
 # Cargo+Git helper file (https://github.com/rust-lang/cargo/blob/0.44.1/src/cargo/sources/git/utils.rs#L320-L327)
@@ -16,3 +16,6 @@ node_modules
 # IDEs
 *.iml
 .idea
+
+.env*
+!.env-public.js

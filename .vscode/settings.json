@@ -1,0 +1,29 @@
+{
+  "remote.SSH.defaultForwardedPorts": [
+    {
+      "name": "Local chain REST",
+      "localPort": 1317,
+      "remotePort": 1317
+    },
+    {
+      "name": "Dapp interface",
+      "localPort": 3000,
+      "remotePort": 3000
+    },
+    {
+      "name": "Local chain Faucet",
+      "localPort": 5000,
+      "remotePort": 5000
+    },
+    {
+      "name": "Local chain gRPC",
+      "localPort": 9091,
+      "remotePort": 9091
+    },
+    {
+      "name": "Local chain RPC",
+      "localPort": 26657,
+      "remotePort": 26657
+    }
+  ]
+}
