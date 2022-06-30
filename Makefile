@@ -70,3 +70,8 @@ testnet/storeCode/snipix: build-prod
 testnet/instantiate/snipix:
 	CONTRACT_NAME=snipix \
 		yarn env-cmd -r .env-public.js -e testnet ts-node scripts/instantiate-contract.ts 
+
+PHONY: mainnet/storeCode/snipix
+mainnet/storeCode/snipix: build-prod
+	CONTRACT_NAME=snipix \
+		yarn env-cmd -r .env-public.js -e mainnet ts-node scripts/upload-contract.ts
